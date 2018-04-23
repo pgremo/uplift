@@ -1,0 +1,45 @@
+version: '2'
+
+services:
+  drone-server:
+    container_name: drone-server
+    image: drone/drone:alpine
+    external_links:
+      - gitea-server
+    ports:
+      - 8000:8000
+      - 9000
+    volumes:
+      - ./volumes/drone/data:/var/lib/drone/
+    environment:
+      - DRONE_OPEN=true
+      - DRONE_HOST=${DRONE_HOST}
+      - DRONE_GITEA=true
+      - DRONE_GITEA_URL=http://gitea-server:3000
+      - DRONE_SECRET=${DRONE_SECRET}
+      - DRONE_NETWORK=gitea_service
+    networks:
+      - service
+      - backend
+      - gitea_service
+
+  drone-agent:
+    container_name: drone-agent
+    image: drone/agent:alpine
+    command: agent
+    depends_on:
+      - drone-server
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DRONE_SERVER=drone-server:9000
+      - DRONE_SECRET=${DRONE_SECRET}
+    networks:
+      - backend
+      - gitea_service
+
+networks:
+  service:
+  backend:
+  gitea_service:
+    external: true

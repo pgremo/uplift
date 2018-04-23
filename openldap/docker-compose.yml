@@ -1,0 +1,17 @@
+version: '2'
+
+services:
+  server:
+    container_name: openldap-server
+    build: .
+    volumes:
+      - ./volumes/openldap/etc:/ldap
+      - ./volumes/openldap/data:/var/lib/openldap
+    ports:
+      - 389:389
+      - 636:636
+    networks:
+      - service
+
+networks:
+  service:

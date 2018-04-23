@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+  server:
+    container_name: phpldapadmin-server
+    build: .
+    ports:
+      - 9090:80
+    volumes:
+      - ./volumes/phpldapadmin/etc:/etc/phpldapadmin
+    networks:
+      - openldap_service
+
+networks:
+  openldap_service:
+    external: true

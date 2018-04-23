@@ -1,0 +1,13 @@
+dn: dc=example,dc=com
+objectclass: dcObject
+objectclass: organization
+o: example
+dc: example
+
+dn: ou=people,dc=example,dc=com
+ou: people
+objectclass: organizationalunit
+
+dn: ou=groups,dc=example,dc=com
+ou: groups
+objectclass: organizationalunit

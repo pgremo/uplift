@@ -1,0 +1,68 @@
+version: '2'
+
+services:
+  sentry:
+    container_name: sentry-server
+    image: sentry
+    links:
+      - postgres
+      - redis
+    volumes:
+      - ./volumes/sentry/data:/data
+    ports:
+      - "9090:9000"
+    environment:
+      SENTRY_REDIS_HOST: 'sentry-redis'
+      SENTRY_POSTGRES_HOST: 'sentry-postgres'
+      SENTRY_SECRET_KEY: ${SENTRY_SECRET_KEY}
+    networks:
+      - frontend
+      - backend
+
+  postgres:
+    container_name: sentry-postgres
+    image: postgres:10-alpine
+    volumes:
+      - ./volumes/postgres/data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  redis:
+    container_name: sentry-redis
+    image: redis:4-alpine
+    volumes:
+      - ./volumes/redis/data:/data
+    networks:
+      - backend
+
+  cron:
+    container_name: sentry-cron
+    image: sentry
+    links:
+      - redis
+      - postgres
+    command: sentry run cron
+    environment:
+      SENTRY_REDIS_HOST: 'redis'
+      SENTRY_POSTGRES_HOST: 'postgres'
+      SENTRY_SECRET_KEY: ${SENTRY_SECRET_KEY}
+    networks:
+      - backend
+
+  worker:
+    container_name: sentry-worker
+    image: sentry
+    links:
+      - redis
+      - postgres
+    command: sentry run worker
+    environment:
+      SENTRY_REDIS_HOST: 'redis'
+      SENTRY_POSTGRES_HOST: 'postgres'
+      SENTRY_SECRET_KEY: ${SENTRY_SECRET_KEY}
+    networks:
+      - backend
+
+networks:
+  frontend:
+  backend:
